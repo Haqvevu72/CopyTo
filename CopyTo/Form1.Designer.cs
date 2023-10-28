@@ -87,6 +87,7 @@
             this.btn_filefrom.TabIndex = 4;
             this.btn_filefrom.Text = "File...";
             this.btn_filefrom.UseVisualStyleBackColor = false;
+            this.btn_filefrom.Click += new System.EventHandler(this.btn_filefrom_Click);
             // 
             // btn_fileto
             // 
@@ -98,6 +99,7 @@
             this.btn_fileto.TabIndex = 5;
             this.btn_fileto.Text = "File...";
             this.btn_fileto.UseVisualStyleBackColor = false;
+            this.btn_fileto.Click += new System.EventHandler(this.btn_fileto_Click);
             // 
             // Loading_Bar
             // 
@@ -117,6 +119,7 @@
             this.btn_suspend.TabIndex = 7;
             this.btn_suspend.Text = "Suspend";
             this.btn_suspend.UseVisualStyleBackColor = false;
+            this.btn_suspend.Click += new System.EventHandler(this.btn_suspend_Click);
             // 
             // btn_resume
             // 
@@ -150,6 +153,7 @@
             this.btn_copy.TabIndex = 10;
             this.btn_copy.Text = "Copy";
             this.btn_copy.UseVisualStyleBackColor = false;
+            this.btn_copy.Click += new System.EventHandler(this.btn_copy_Click);
             // 
             // Form1
             // 
