@@ -130,6 +130,7 @@
             this.btn_resume.TabIndex = 8;
             this.btn_resume.Text = "Resume";
             this.btn_resume.UseVisualStyleBackColor = true;
+            this.btn_resume.Click += new System.EventHandler(this.btn_resume_Click);
             // 
             // btn_abort
             // 
@@ -142,6 +143,7 @@
             this.btn_abort.TabIndex = 9;
             this.btn_abort.Text = "Abort";
             this.btn_abort.UseVisualStyleBackColor = false;
+            this.btn_abort.Click += new System.EventHandler(this.btn_abort_Click);
             // 
             // btn_copy
             // 

@@ -15,48 +15,16 @@ namespace CopyTo
 {
     public partial class Form1 : Form
     {
-        static Thread thread1;
-        static Thread thread2;
-       
+        static Thread copyThread;
+        static Thread loadBarThread;
+
+        private bool isSuspended = false;
+        private object suspendLock = new object();
+
+
         public Form1()
         {
             InitializeComponent();
-             
-            thread1 = new Thread(() =>
-            {
-                string sourceFilePath = txtbox_from.Text;
-
-                string destinationDirectory = txtbox_to.Text;
-
-                if (File.Exists(destinationDirectory + "\\" + $"{Path.GetFileName(sourceFilePath)}") == false)
-                {
-
-                    string fileName = Path.GetFileName(sourceFilePath);
-
-                    string destinationFilePath = Path.Combine(destinationDirectory, fileName);
-
-                    Thread.Sleep(3000);
-                    File.Copy(sourceFilePath, destinationFilePath);
-
-                }
-                else
-                {
-                    MessageBox.Show("File already exists in this directory", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
-            });
-            thread2 = new Thread(() => 
-                {
-                    Loading_Bar.Minimum = 0;
-                    Loading_Bar.Maximum = 10;
-                    Loading_Bar.Value = 0;
-
-                    for (int currentValue = 0; currentValue <= 10; currentValue++)
-                    {
-                        Loading_Bar.Value = currentValue;
-                        Application.DoEvents(); // Allow the UI to update
-                        Thread.Sleep(100); // Sleep to control the speed of filling
-                    }
-                });
         }
 
         private void btn_filefrom_Click(object sender, EventArgs e)
@@ -102,6 +70,103 @@ namespace CopyTo
             }
         }
 
-        
+        private void btn_copy_Click(object sender, EventArgs e)
+        {
+            copyThread = new Thread(CopyFile);
+            loadBarThread = new Thread(LoadBar);
+
+            copyThread.Start();
+            loadBarThread.Start();
+        }
+
+        private void btn_abort_Click(object sender, EventArgs e)
+        {
+            if (copyThread != null && copyThread.IsAlive)
+            {
+                copyThread.Abort();
+            }
+
+            // Abort the loadBarThread
+            if (loadBarThread != null && loadBarThread.IsAlive)
+            {
+                loadBarThread.Abort();
+                Loading_Bar.Value = 0;
+            }
+        }
+
+        private void btn_suspend_Click(object sender, EventArgs e)
+        {
+            lock (suspendLock)
+            {
+                isSuspended = true;
+            }
+        }
+
+        private void btn_resume_Click(object sender, EventArgs e)
+        {
+            lock (suspendLock)
+            {
+                isSuspended = false;
+                Monitor.PulseAll(suspendLock);
+            }
+        }
+
+        private void CopyFile() 
+        {
+            while (true)
+            {
+                string sourceFilePath = txtbox_from.Text;
+
+                string destinationDirectory = txtbox_to.Text;
+
+                if (File.Exists(destinationDirectory + "\\" + $"{Path.GetFileName(sourceFilePath)}") == false)
+                {
+
+                    string fileName = Path.GetFileName(sourceFilePath);
+
+                    string destinationFilePath = Path.Combine(destinationDirectory, fileName);
+
+                    Thread.Sleep(10000);
+                    File.Copy(sourceFilePath, destinationFilePath);
+
+                }
+                else
+                {
+                    MessageBox.Show("File already exists in this directory", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                lock (suspendLock)
+                {
+                    while (isSuspended)
+                    {
+                        Monitor.Wait(suspendLock);
+                    }
+                }
+            }
+        }
+        private void LoadBar() 
+        {
+            while (true) 
+            {
+                Loading_Bar.Minimum = 0;
+                Loading_Bar.Maximum = 10;
+                Loading_Bar.Value = 0;
+
+                for (int currentValue = 0; currentValue <= 10; currentValue++)
+                {
+                    Loading_Bar.Value = currentValue;
+                    Application.DoEvents(); // Allow the UI to update
+                    Thread.Sleep(1000); // Sleep to control the speed of filling
+                }
+
+                lock (suspendLock)
+                {
+                    while (isSuspended)
+                    {
+                        Monitor.Wait(suspendLock);
+                    }
+                }
+            }
+        }
+
     }
 }
