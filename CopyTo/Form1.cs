@@ -94,7 +94,7 @@ namespace CopyTo
 
         private void CopyFile()
         {
-            if (txtbox_from.Text != null && txtbox_to.Text != null)
+            if (txtbox_from.Text != string.Empty && txtbox_to.Text != string.Empty)
 
             { string sourceFilePath = txtbox_from.Text;
 
